@@ -29,8 +29,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isLoggingIn = state.matchedLocation == '/login';
       final isSplashing = state.matchedLocation == '/splash';
 
+      // While loading/initializing: never interrupt navigation in progress
       if (status == AuthStatus.initial || status == AuthStatus.loading) {
-        return isSplashing ? null : '/splash';
+        if (isSplashing) return null;
+        if (isLoggingIn) return null;
+        // User may have already navigated to /home – let it be
+        return null;
       }
 
       final isAuthenticated = status == AuthStatus.authenticated;
@@ -39,6 +43,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         return isLoggingIn ? null : '/login';
       }
 
+      // Authenticated: bounce away from login/splash
       if (isLoggingIn || isSplashing) {
         return '/home';
       }
@@ -97,22 +102,38 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Colors.white,
+    return Scaffold(
+      backgroundColor: AppColors.background,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.fact_check_outlined, color: AppColors.primary, size: 54),
-            SizedBox(height: 16),
-            Text(
-              'Attendant',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.text),
+            Container(
+              width: 54,
+              height: 54,
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
+              ),
+              child: const Center(
+                child: Icon(Icons.fact_check_outlined, color: AppColors.primary, size: 28),
+              ),
             ),
-            SizedBox(height: 24),
-            SizedBox(
-              width: 24,
-              height: 24,
+            const SizedBox(height: 16),
+            const Text(
+              'Attendant',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+                letterSpacing: -0.3,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const SizedBox(
+              width: 20,
+              height: 20,
               child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
             ),
           ],

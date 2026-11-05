@@ -61,7 +61,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(error),
-          backgroundColor: AppColors.primaryDark,
+          backgroundColor: AppColors.error,
         ),
       );
     }
@@ -81,48 +81,51 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     switch (detectionResult.detectionStatus) {
       case DetectionStatus.detected:
         statusColor = AppColors.success;
-        statusIcon = Icons.check_circle;
-        statusText = 'Face Detected — Hold steady & tap submit';
+        statusIcon = Icons.check_circle_outline;
+        statusText = 'Face detected. Ready to submit.';
         break;
       case DetectionStatus.multipleFaces:
-        statusColor = AppColors.primary;
-        statusIcon = Icons.group;
+        statusColor = AppColors.error;
+        statusIcon = Icons.group_outlined;
         statusText = 'Multiple faces detected. Only 1 person allowed.';
         break;
       case DetectionStatus.invalidPosition:
         statusColor = AppColors.warning;
-        statusIcon = Icons.center_focus_weak;
-        statusText = 'Face not centered. Move into the center.';
+        statusIcon = Icons.center_focus_weak_outlined;
+        statusText = 'Face not centered. Move to the center.';
         break;
       case DetectionStatus.invalidFaceSize:
         statusColor = AppColors.warning;
-        statusIcon = Icons.zoom_in;
-        statusText = 'Adjust your distance to fit inside the oval.';
+        statusIcon = Icons.zoom_in_outlined;
+        statusText = 'Adjust your distance to fit inside the frame.';
         break;
       case DetectionStatus.initializing:
-        statusColor = Colors.blue;
-        statusIcon = Icons.hourglass_top;
+        statusColor = AppColors.info;
+        statusIcon = Icons.hourglass_top_outlined;
         statusText = 'Initializing camera and scanner...';
         break;
       case DetectionStatus.error:
-        statusColor = AppColors.primary;
+        statusColor = AppColors.error;
         statusIcon = Icons.error_outline;
         statusText = detectionResult.errorMessage ?? 'Camera/scanner error.';
         break;
       case DetectionStatus.noFace:
-        statusColor = Colors.orange;
-        statusIcon = Icons.face_retouching_natural;
-        statusText = 'Position your face clearly within the oval.';
+        statusColor = AppColors.textMuted;
+        statusIcon = Icons.face_outlined;
+        statusText = 'Position your face inside the frame.';
         break;
     }
+
+    final isReady = detectionResult.isValidForAttendance;
 
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 18)),
+        title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
+        centerTitle: false,
       ),
       body: Stack(
         children: [
@@ -131,111 +134,116 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
             child: service.buildPreview(context),
           ),
 
-          // Dark Overlay with Cutout Mask
+          // Clean Dark Overlay with Cutout Mask
           Positioned.fill(
             child: CustomPaint(
               painter: ScannerOverlayPainter(
-                borderColor: statusColor,
+                borderColor: isReady ? AppColors.success : Colors.white54,
               ),
             ),
           ),
 
-          // Header Instruction
+          // Top Status Pill
           Positioned(
-            top: 20,
-            left: 20,
-            right: 20,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.7),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.white24),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(statusIcon, color: statusColor, size: 20),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      statusText,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Bottom Controls
-          Positioned(
-            bottom: 30,
-            left: 24,
-            right: 24,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (detectionResult.detectionStatus == DetectionStatus.error) ...[
-                  FilledButton.icon(
-                    onPressed: () {
-                      ref.read(faceDetectionProvider.notifier).initialize();
-                    },
-                    style: FilledButton.styleFrom(backgroundColor: Colors.white24),
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Retry Camera'),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: (detectionResult.isValidForAttendance && !_isSubmitting)
-                        ? () => _handleConfirmAttendance(detectionResult)
-                        : null,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: detectionResult.isValidForAttendance
-                          ? AppColors.primary
-                          : Colors.grey.shade800,
-                      disabledBackgroundColor: Colors.grey.shade900,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    icon: _isSubmitting
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                        : Icon(
-                            detectionResult.isValidForAttendance
-                                ? Icons.verified_user
-                                : Icons.lock_outline,
-                            color: Colors.white,
-                          ),
-                    label: Text(
-                      _isSubmitting
-                          ? 'Recording Attendance...'
-                          : (detectionResult.isValidForAttendance
-                              ? (isCheckIn ? 'Confirm Check In' : 'Confirm Check Out')
-                              : 'Face Required to Submit'),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+            top: AppSpacing.lg,
+            left: AppSpacing.xl,
+            right: AppSpacing.xl,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: Colors.black87,
+                  borderRadius: AppRadius.borderRadiusRound,
+                  border: Border.all(color: Colors.white24, width: 1),
                 ),
-              ],
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(statusIcon, color: statusColor, size: 16),
+                    const SizedBox(width: AppSpacing.sm),
+                    Flexible(
+                      child: Text(
+                        statusText,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Bottom Controls Container
+          Positioned(
+            bottom: AppSpacing.xxl,
+            left: AppSpacing.xl,
+            right: AppSpacing.xl,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (detectionResult.detectionStatus == DetectionStatus.error) ...[
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          ref.read(faceDetectionProvider.notifier).initialize();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side: const BorderSide(color: Colors.white30),
+                        ),
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: const Text('Retry Camera'),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                    ],
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: (isReady && !_isSubmitting)
+                            ? () => _handleConfirmAttendance(detectionResult)
+                            : null,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: isReady ? AppColors.primary : Colors.grey.shade800,
+                          disabledBackgroundColor: Colors.white12,
+                          disabledForegroundColor: Colors.white38,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        icon: _isSubmitting
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              )
+                            : Icon(
+                                isReady ? Icons.check_circle_outline : Icons.lock_outline,
+                                size: 18,
+                                color: isReady ? Colors.white : Colors.white38,
+                              ),
+                        label: Text(
+                          _isSubmitting
+                              ? 'Recording Attendance...'
+                              : (isReady
+                                  ? (isCheckIn ? 'Confirm Check In' : 'Confirm Check Out')
+                                  : 'Face Required to Submit'),
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: isReady ? Colors.white : Colors.white38,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
@@ -251,24 +259,24 @@ class ScannerOverlayPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final backgroundPaint = Paint()..color = Colors.black.withValues(alpha: 0.55);
+    final backgroundPaint = Paint()..color = Colors.black.withValues(alpha: 0.5);
     final ovalWidth = size.width * 0.72;
-    final ovalHeight = size.height * 0.46;
+    final ovalHeight = size.height * 0.44;
     final center = Offset(size.width / 2, size.height * 0.40);
     final ovalRect = Rect.fromCenter(center: center, width: ovalWidth, height: ovalHeight);
 
-    // Draw background with hole
+    // Draw background with cutout
     final path = Path()
       ..addRect(Rect.fromLTWH(0, 0, size.width, size.height))
       ..addOval(ovalRect)
       ..fillType = PathFillType.evenOdd;
     canvas.drawPath(path, backgroundPaint);
 
-    // Draw Oval Guide Border
+    // Draw clean minimalist frame
     final borderPaint = Paint()
       ..color = borderColor
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.5;
+      ..strokeWidth = 2.0;
     canvas.drawOval(ovalRect, borderPaint);
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/database/database_provider.dart';
+import '../../../shared/widgets/app_card.dart';
 import '../../auth/presentation/auth_providers.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -13,135 +14,139 @@ class ProfileScreen extends ConsumerWidget {
     final employee = ref.watch(currentEmployeeProvider);
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('My Profile', style: TextStyle(fontWeight: FontWeight.bold)),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.text,
+        title: const Text('My Profile'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+      body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Avatar & Basic Info Card
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xl),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Avatar & Basic Info Card
+                AppCard(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxl, horizontal: AppSpacing.lg),
                   child: Column(
                     children: [
                       CircleAvatar(
-                        radius: 40,
-                        backgroundColor: AppColors.primaryLight,
+                        radius: 36,
+                        backgroundColor: AppColors.surfaceSecondary,
                         child: Text(
                           (employee?.name.isNotEmpty ?? false)
                               ? employee!.name.substring(0, 1).toUpperCase()
                               : 'E',
                           style: const TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                            fontSize: 26,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppSpacing.md),
                       Text(
                         employee?.name ?? 'Employee Name',
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: AppTypography.pageTitle.copyWith(fontSize: 20),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         '${employee?.employeeCode ?? "EMP001"} • ${employee?.email ?? ""}',
-                        style: const TextStyle(color: AppColors.muted, fontSize: 13),
+                        style: AppTypography.supporting,
                       ),
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.md),
 
-              // Detailed Profile Fields
-              Card(
-                child: Column(
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.badge_outlined, color: AppColors.primary),
-                      title: const Text('Employee ID', style: TextStyle(fontSize: 13, color: AppColors.muted)),
-                      subtitle: Text(employee?.employeeCode ?? 'EMP001', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                    ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(Icons.corporate_fare_outlined, color: AppColors.primary),
-                      title: const Text('Department', style: TextStyle(fontSize: 13, color: AppColors.muted)),
-                      subtitle: Text(employee?.department ?? 'Engineering', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                    ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(Icons.work_outline, color: AppColors.primary),
-                      title: const Text('Position', style: TextStyle(fontSize: 13, color: AppColors.muted)),
-                      subtitle: Text(employee?.position ?? 'Staff', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                    ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(Icons.email_outlined, color: AppColors.primary),
-                      title: const Text('Email', style: TextStyle(fontSize: 13, color: AppColors.muted)),
-                      subtitle: Text(employee?.email ?? 'employee@attendant.local', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Actions Card
-              Card(
-                child: Column(
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.edit_outlined, color: Colors.blueAccent),
-                      title: const Text('Edit Information', style: TextStyle(fontWeight: FontWeight.w600)),
-                      subtitle: const Text('Update your display name, department, or position'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => _showEditProfileDialog(context, ref),
-                    ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(Icons.lock_reset, color: Colors.orange),
-                      title: const Text('Change Password', style: TextStyle(fontWeight: FontWeight.w600)),
-                      subtitle: const Text('Update demo login password locally'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => _showChangePasswordDialog(context, ref),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Logout Button
-              FilledButton.icon(
-                onPressed: () async {
-                  await ref.read(authProvider.notifier).logout();
-                  if (context.mounted) {
-                    context.go('/login');
-                  }
-                },
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primaryLight,
-                  foregroundColor: AppColors.primaryDark,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                // Detailed Profile Fields (Neutral Line Icons)
+                AppCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.badge_outlined, color: AppColors.textSecondary, size: 20),
+                        title: const Text('Employee ID', style: AppTypography.caption),
+                        subtitle: Text(
+                          employee?.employeeCode ?? 'EMP001',
+                          style: AppTypography.body.copyWith(fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.corporate_fare_outlined, color: AppColors.textSecondary, size: 20),
+                        title: const Text('Department', style: AppTypography.caption),
+                        subtitle: Text(
+                          employee?.department ?? 'Engineering',
+                          style: AppTypography.body.copyWith(fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.work_outline, color: AppColors.textSecondary, size: 20),
+                        title: const Text('Position', style: AppTypography.caption),
+                        subtitle: Text(
+                          employee?.position ?? 'Staff',
+                          style: AppTypography.body.copyWith(fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.email_outlined, color: AppColors.textSecondary, size: 20),
+                        title: const Text('Email', style: AppTypography.caption),
+                        subtitle: Text(
+                          employee?.email ?? 'employee@attendant.local',
+                          style: AppTypography.body.copyWith(fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                icon: const Icon(Icons.logout, color: AppColors.primaryDark),
-                label: const Text(
-                  'Log Out',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                const SizedBox(height: AppSpacing.md),
+
+                // Actions Card
+                AppCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.edit_outlined, color: AppColors.textSecondary, size: 20),
+                        title: const Text('Edit Information', style: AppTypography.cardTitle),
+                        subtitle: const Text('Update your display name, department, or position', style: AppTypography.supporting),
+                        trailing: const Icon(Icons.chevron_right, size: 20, color: AppColors.textMuted),
+                        onTap: () => _showEditProfileDialog(context, ref),
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.lock_reset, color: AppColors.textSecondary, size: 20),
+                        title: const Text('Change Password', style: AppTypography.cardTitle),
+                        subtitle: const Text('Update demo login password locally', style: AppTypography.supporting),
+                        trailing: const Icon(Icons.chevron_right, size: 20, color: AppColors.textMuted),
+                        onTap: () => _showChangePasswordDialog(context, ref),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: AppSpacing.xxl),
+
+                // Logout Button (Neutral Outlined with subtle red accent)
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    await ref.read(authProvider.notifier).logout();
+                    if (context.mounted) {
+                      context.go('/login');
+                    }
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.error,
+                    side: BorderSide(color: AppColors.error.withValues(alpha: 0.3)),
+                  ),
+                  icon: const Icon(Icons.logout_rounded, size: 18),
+                  label: const Text('Log Out'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -160,7 +165,9 @@ class ProfileScreen extends ConsumerWidget {
       context: context,
       builder: (dialogCtx) {
         return AlertDialog(
-          title: const Text('Edit Profile'),
+          backgroundColor: AppColors.surface,
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.borderRadiusXl),
+          title: const Text('Edit Profile', style: AppTypography.sectionTitle),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -169,12 +176,12 @@ class ProfileScreen extends ConsumerWidget {
                   controller: nameController,
                   decoration: const InputDecoration(labelText: 'Full Name'),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.md),
                 TextField(
                   controller: deptController,
                   decoration: const InputDecoration(labelText: 'Department'),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.md),
                 TextField(
                   controller: posController,
                   decoration: const InputDecoration(labelText: 'Position'),
@@ -206,7 +213,10 @@ class ProfileScreen extends ConsumerWidget {
                 if (dialogCtx.mounted) Navigator.pop(dialogCtx);
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Profile updated successfully!')),
+                    const SnackBar(
+                      content: Text('Profile updated successfully!'),
+                      backgroundColor: AppColors.success,
+                    ),
                   );
                 }
               },
@@ -226,7 +236,9 @@ class ProfileScreen extends ConsumerWidget {
       context: context,
       builder: (dialogCtx) {
         return AlertDialog(
-          title: const Text('Change Password'),
+          backgroundColor: AppColors.surface,
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.borderRadiusXl),
+          title: const Text('Change Password', style: AppTypography.sectionTitle),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -236,7 +248,7 @@ class ProfileScreen extends ConsumerWidget {
                   obscureText: true,
                   decoration: const InputDecoration(labelText: 'Current Password'),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.md),
                 TextField(
                   controller: newPassController,
                   obscureText: true,
@@ -254,7 +266,10 @@ class ProfileScreen extends ConsumerWidget {
               onPressed: () async {
                 if (newPassController.text.length < 6) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('New password must be at least 6 characters.')),
+                    const SnackBar(
+                      content: Text('New password must be at least 6 characters.'),
+                      backgroundColor: AppColors.error,
+                    ),
                   );
                   return;
                 }
@@ -271,7 +286,7 @@ class ProfileScreen extends ConsumerWidget {
                             ? 'Password changed successfully!'
                             : 'Incorrect current password. Please try again.',
                       ),
-                      backgroundColor: success ? AppColors.success : AppColors.primaryDark,
+                      backgroundColor: success ? AppColors.success : AppColors.error,
                     ),
                   );
                 }

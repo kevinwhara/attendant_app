@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/utils/attendance_calculator.dart';
+import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/app_status_badge.dart';
 import '../../auth/presentation/auth_providers.dart';
 import '../../attendance/presentation/attendance_providers.dart';
 
@@ -42,67 +44,68 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final scheduleAsync = ref.watch(todayScheduleProvider);
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Dashboard', style: TextStyle(fontWeight: FontWeight.bold)),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.text,
+        title: const Text('Dashboard'),
         actions: [
           IconButton(
             tooltip: 'View Profile',
-            icon: const Icon(Icons.account_circle_outlined),
+            icon: const Icon(Icons.account_circle_outlined, size: 22),
             onPressed: () => context.push('/profile'),
           ),
+          const SizedBox(width: AppSpacing.sm),
         ],
       ),
       body: RefreshIndicator(
+        color: AppColors.primary,
         onRefresh: () async {
           ref.invalidate(todayAttendanceProvider);
           ref.invalidate(todayScheduleProvider);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(20),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Greeting & Profile Header
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xl),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 640),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Greeting & Profile Header
+                  AppCard(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
                     child: Row(
                       children: [
                         CircleAvatar(
-                          radius: 28,
-                          backgroundColor: AppColors.primaryLight,
+                          radius: 24,
+                          backgroundColor: AppColors.surfaceSecondary,
                           child: Text(
                             (employee?.name.isNotEmpty ?? false)
                                 ? employee!.name.substring(0, 1).toUpperCase()
                                 : 'E',
                             style: const TextStyle(
-                              color: AppColors.primary,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: AppSpacing.lg),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 'Hello, ${employee?.name ?? 'Employee'}',
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                style: AppTypography.cardTitle.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 2),
                               Text(
                                 '${employee?.employeeCode ?? 'EMP001'} • ${employee?.position ?? 'Staff'}',
-                                style: const TextStyle(color: AppColors.muted, fontSize: 13),
+                                style: AppTypography.supporting,
                               ),
                             ],
                           ),
@@ -110,13 +113,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.md),
 
-                // Live Clock Card
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  // Live Clock Card (Neutral & Calm)
+                  AppCard(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xl,
+                      vertical: AppSpacing.lg,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -125,82 +129,65 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           children: [
                             Text(
                               DateFormat('EEEE, dd MMMM yyyy').format(_currentTime),
-                              style: const TextStyle(
-                                color: AppColors.muted,
-                                fontSize: 13,
+                              style: AppTypography.supporting.copyWith(
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: AppSpacing.xs),
                             Text(
                               DateFormat('HH:mm:ss').format(_currentTime),
-                              style: const TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                                letterSpacing: 1.2,
-                              ),
+                              style: AppTypography.importantNumber,
                             ),
                           ],
                         ),
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(AppSpacing.md),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryLight,
-                            borderRadius: BorderRadius.circular(12),
+                            color: AppColors.surfaceSecondary,
+                            borderRadius: AppRadius.borderRadiusLg,
                           ),
                           child: const Icon(
-                            Icons.access_time_filled,
-                            color: AppColors.primary,
-                            size: 28,
+                            Icons.access_time_rounded,
+                            color: AppColors.textSecondary,
+                            size: 24,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.md),
 
-                // Attendance Status Card
-                attendanceAsync.when(
-                  data: (record) {
-                    final isCheckedIn = record != null && record.checkIn != null;
-                    final isCheckedOut = record != null && record.checkOut != null;
+                  // Attendance Status Card
+                  attendanceAsync.when(
+                    data: (record) {
+                      final isCheckedIn = record != null && record.checkIn != null;
+                      final isCheckedOut = record != null && record.checkOut != null;
 
-                    Color statusColor = AppColors.muted;
-                    String statusLabel = 'Not Checked In';
-                    if (isCheckedOut) {
-                      statusColor = AppColors.success;
-                      statusLabel = 'Completed';
-                    } else if (isCheckedIn) {
-                      if (record.status == 'late') {
-                        statusColor = AppColors.lateBadge;
-                        statusLabel = 'Late';
-                      } else {
-                        statusColor = AppColors.warning;
-                        statusLabel = 'Working';
+                      String statusLabel = 'Not Checked In';
+                      if (isCheckedOut) {
+                        statusLabel = 'Completed';
+                      } else if (isCheckedIn) {
+                        statusLabel = record.status == 'late' ? 'Late' : 'Working';
                       }
-                    }
 
-                    // Calculate working duration
-                    String durationStr = '--';
-                    if (isCheckedIn) {
-                      final inTime = DateTime.fromMillisecondsSinceEpoch(record.checkIn!, isUtc: true);
-                      final outTime = isCheckedOut
-                          ? DateTime.fromMillisecondsSinceEpoch(record.checkOut!, isUtc: true)
-                          : _currentTime;
-                      final dur = AttendanceCalculator.calculateWorkingDuration(
-                        checkIn: inTime,
-                        checkOut: outTime,
-                        breakStartStr: '12:00',
-                        breakEndStr: '13:00',
-                      );
-                      durationStr = AttendanceCalculator.formatDuration(dur);
-                    }
+                      // Calculate working duration
+                      String durationStr = '--';
+                      if (isCheckedIn) {
+                        final inTime = DateTime.fromMillisecondsSinceEpoch(record.checkIn!, isUtc: true);
+                        final outTime = isCheckedOut
+                            ? DateTime.fromMillisecondsSinceEpoch(record.checkOut!, isUtc: true)
+                            : _currentTime;
+                        final dur = AttendanceCalculator.calculateWorkingDuration(
+                          checkIn: inTime,
+                          checkOut: outTime,
+                          breakStartStr: '12:00',
+                          breakEndStr: '13:00',
+                        );
+                        durationStr = AttendanceCalculator.formatDuration(dur);
+                      }
 
-                    return Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
+                      return AppCard(
+                        padding: const EdgeInsets.all(AppSpacing.xl),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -209,149 +196,141 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               children: [
                                 const Text(
                                   "Today's Attendance",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: AppTypography.cardTitle,
                                 ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: statusColor.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    statusLabel,
-                                    style: TextStyle(
-                                      color: statusColor,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
+                                AppStatusBadge.fromStatus(statusLabel),
+                              ],
+                            ),
+                            const SizedBox(height: AppSpacing.xl),
+                            // Stat columns
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.md,
+                                horizontal: AppSpacing.sm,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceSecondary,
+                                borderRadius: AppRadius.borderRadiusLg,
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildAttendanceStatItem(
+                                      label: 'Check In',
+                                      value: isCheckedIn
+                                          ? AttendanceCalculator.formatTimeFromMillis(record.checkIn!)
+                                          : '--:--',
+                                      icon: Icons.login_rounded,
                                     ),
                                   ),
-                                ),
-                              ],
+                                  Container(
+                                    width: 1,
+                                    height: 36,
+                                    color: AppColors.border,
+                                  ),
+                                  Expanded(
+                                    child: _buildAttendanceStatItem(
+                                      label: 'Check Out',
+                                      value: isCheckedOut
+                                          ? AttendanceCalculator.formatTimeFromMillis(record.checkOut!)
+                                          : '--:--',
+                                      icon: Icons.logout_rounded,
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 1,
+                                    height: 36,
+                                    color: AppColors.border,
+                                  ),
+                                  Expanded(
+                                    child: _buildAttendanceStatItem(
+                                      label: 'Working Time',
+                                      value: durationStr,
+                                      icon: Icons.timer_outlined,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                            const SizedBox(height: 20),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildAttendanceStatItem(
-                                    label: 'Check In',
-                                    value: isCheckedIn
-                                        ? AttendanceCalculator.formatTimeFromMillis(record.checkIn!)
-                                        : '--:--',
-                                    icon: Icons.login_rounded,
-                                    iconColor: AppColors.success,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: _buildAttendanceStatItem(
-                                    label: 'Check Out',
-                                    value: isCheckedOut
-                                        ? AttendanceCalculator.formatTimeFromMillis(record.checkOut!)
-                                        : '--:--',
-                                    icon: Icons.logout_rounded,
-                                    iconColor: AppColors.primary,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: _buildAttendanceStatItem(
-                                    label: 'Working Time',
-                                    value: durationStr,
-                                    icon: Icons.timer_outlined,
-                                    iconColor: Colors.blueAccent,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 24),
-                            // Action Button
-                            SizedBox(
-                              width: double.infinity,
-                              child: FilledButton.icon(
-                                onPressed: isCheckedOut
-                                    ? null
-                                    : () {
-                                        final isOut = isCheckedIn;
-                                        context.push('/attendance/scanner?type=${isOut ? 'checkout' : 'checkin'}');
-                                      },
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: isCheckedIn ? AppColors.primaryDark : AppColors.primary,
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                icon: Icon(
-                                  isCheckedOut
-                                      ? Icons.check_circle_outline
-                                      : (isCheckedIn ? Icons.logout : Icons.camera_alt_outlined),
-                                ),
-                                label: Text(
-                                  isCheckedOut
-                                      ? 'Attendance Finished Today'
-                                      : (isCheckedIn ? 'Check Out via Face Scanner' : 'Check In via Face Scanner'),
-                                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-                                ),
+                            const SizedBox(height: AppSpacing.xl),
+
+                            // Main attendance action button (Red primary accent)
+                            FilledButton.icon(
+                              onPressed: isCheckedOut
+                                  ? null
+                                  : () {
+                                      final isOut = isCheckedIn;
+                                      context.push('/attendance/scanner?type=${isOut ? 'checkout' : 'checkin'}');
+                                    },
+                              icon: Icon(
+                                isCheckedOut
+                                    ? Icons.check_circle_outline
+                                    : (isCheckedIn ? Icons.logout_rounded : Icons.camera_alt_outlined),
+                                size: 18,
+                              ),
+                              label: Text(
+                                isCheckedOut
+                                    ? 'Attendance Finished Today'
+                                    : (isCheckedIn ? 'Check Out via Face Scanner' : 'Check In via Face Scanner'),
                               ),
                             ),
                           ],
                         ),
+                      );
+                    },
+                    loading: () => const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(AppSpacing.xxxl),
+                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
                       ),
-                    );
-                  },
-                  loading: () => const Center(child: Padding(
-                    padding: EdgeInsets.all(32),
-                    child: CircularProgressIndicator(),
-                  )),
-                  error: (err, _) => Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Text('Error loading attendance: $err'),
+                    ),
+                    error: (err, _) => AppCard(
+                      child: Text('Error loading attendance: $err', style: AppTypography.supporting),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.md),
 
-                // Today Schedule Summary
-                scheduleAsync.when(
-                  data: (schedule) => Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
+                  // Today Schedule Summary Card
+                  scheduleAsync.when(
+                    data: (schedule) => AppCard(
+                      padding: const EdgeInsets.all(AppSpacing.lg),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: const [
-                              Icon(Icons.calendar_today_outlined, size: 20, color: AppColors.primary),
-                              SizedBox(width: 8),
+                              Icon(Icons.calendar_today_outlined, size: 16, color: AppColors.textSecondary),
+                              SizedBox(width: AppSpacing.sm),
                               Text(
                                 "Today's Work Schedule",
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                style: AppTypography.cardTitle,
                               ),
                             ],
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: AppSpacing.md),
                           if (schedule != null) ...[
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text('Shift Hours', style: TextStyle(color: AppColors.muted)),
+                                const Text('Shift Hours', style: AppTypography.supporting),
                                 Text(
                                   '${schedule.startTime} - ${schedule.endTime}',
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),
                             if (schedule.breakStart != null) ...[
-                              const SizedBox(height: 8),
+                              const SizedBox(height: AppSpacing.sm),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('Break Window', style: TextStyle(color: AppColors.muted)),
+                                  const Text('Break Window', style: AppTypography.supporting),
                                   Text(
                                     '${schedule.breakStart} - ${schedule.breakEnd}',
-                                    style: const TextStyle(fontWeight: FontWeight.w500),
+                                    style: AppTypography.supporting.copyWith(
+                                      color: AppColors.textPrimary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -359,17 +338,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           ] else ...[
                             const Text(
                               'No regular shift scheduled for today (Weekend/Off day).',
-                              style: TextStyle(color: AppColors.muted, fontStyle: FontStyle.italic),
+                              style: TextStyle(color: AppColors.textMuted, fontStyle: FontStyle.italic, fontSize: 13),
                             ),
                           ],
                         ],
                       ),
                     ),
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, _) => const SizedBox.shrink(),
                   ),
-                  loading: () => const SizedBox.shrink(),
-                  error: (_, _) => const SizedBox.shrink(),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -381,20 +360,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     required String label,
     required String value,
     required IconData icon,
-    required Color iconColor,
   }) {
     return Column(
       children: [
-        Icon(icon, color: iconColor, size: 22),
-        const SizedBox(height: 6),
+        Icon(icon, color: AppColors.textSecondary, size: 18),
+        const SizedBox(height: AppSpacing.xs),
         Text(
           value,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: AppTypography.cardTitle.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: AppColors.muted),
+          style: AppTypography.caption,
         ),
       ],
     );

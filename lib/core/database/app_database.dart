@@ -31,6 +31,10 @@ class AppDatabase extends _$AppDatabase {
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON;');
+      final count = await (select(employees)..limit(1)).get();
+      if (count.isEmpty) {
+        await _seedData();
+      }
     },
   );
 
