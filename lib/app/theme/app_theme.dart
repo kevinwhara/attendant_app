@@ -1,16 +1,7 @@
 import 'package:flutter/material.dart';
-
-abstract final class AppColors {
-  static const primary = Color(0xffe53935),
-      primaryDark = Color(0xffc62828),
-      primaryLight = Color(0xffffebee),
-      background = Color(0xfffafafa),
-      text = Color(0xff212121),
-      muted = Color(0xff757575),
-      border = Color(0xffeeeeee),
-      success = Color(0xff2e7d32),
-      warning = Color(0xfff9a825);
-}
+import 'app_colors.dart';
+export 'app_colors.dart';
+export 'app_typography.dart';
 
 abstract final class AppTheme {
   static ThemeData get light => ThemeData(
@@ -18,9 +9,11 @@ abstract final class AppTheme {
     colorScheme: ColorScheme.fromSeed(
       seedColor: AppColors.primary,
       brightness: Brightness.light,
-    ).copyWith(primary: AppColors.primary, surface: Colors.white),
+    ).copyWith(
+      primary: AppColors.primary,
+      surface: Colors.white,
+    ),
     scaffoldBackgroundColor: AppColors.background,
-    fontFamily: 'Inter',
     cardTheme: CardThemeData(
       color: Colors.white,
       elevation: 0,
