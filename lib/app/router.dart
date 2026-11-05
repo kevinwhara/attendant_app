@@ -8,12 +8,23 @@ import '../features/auth/presentation/login_screen.dart';
 import '../features/home/presentation/home_shell.dart';
 import 'theme/app_theme.dart';
 
+class AuthRefreshListenable extends ChangeNotifier {
+  AuthRefreshListenable(Ref ref) {
+    ref.listen(authProvider, (_, _) {
+      notifyListeners();
+    });
+  }
+}
+
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
+  final authNotifier = AuthRefreshListenable(ref);
+  ref.onDispose(authNotifier.dispose);
 
   return GoRouter(
     initialLocation: '/splash',
+    refreshListenable: authNotifier,
     redirect: (context, state) {
+      final authState = ref.read(authProvider);
       final status = authState.status;
       final isLoggingIn = state.matchedLocation == '/login';
       final isSplashing = state.matchedLocation == '/splash';
@@ -110,3 +121,4 @@ class SplashScreen extends StatelessWidget {
     );
   }
 }
+

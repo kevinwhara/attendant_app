@@ -152,3 +152,4 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
     return _db.attendanceDao.getAttendanceById(id);
   }
 }
+

@@ -14,3 +14,4 @@ final holidaysStreamProvider = StreamProvider<List<HolidayData>>((ref) {
   final db = ref.watch(appDatabaseProvider);
   return db.workSchedulesDao.watchHolidays();
 });
+

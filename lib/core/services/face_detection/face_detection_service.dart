@@ -13,3 +13,4 @@ abstract class FaceDetectionService {
   /// Returns a widget showing the camera preview if available
   Widget buildPreview(BuildContext context);
 }
+

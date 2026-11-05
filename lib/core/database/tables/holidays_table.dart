@@ -7,3 +7,4 @@ class Holidays extends Table {
   TextColumn get holidayDate => text()(); // YYYY-MM-DD
   TextColumn get description => text().nullable()();
 }
+

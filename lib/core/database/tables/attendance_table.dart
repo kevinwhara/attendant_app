@@ -22,3 +22,4 @@ class Attendance extends Table {
     {employeeId, attendanceDate},
   ];
 }
+

@@ -12,3 +12,4 @@ class HashUtil {
     return hashPassword(password) == hash;
   }
 }
+

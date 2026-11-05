@@ -6,3 +6,4 @@ class AppSettings extends Table {
   TextColumn get settingKey => text().unique()();
   TextColumn get settingValue => text()();
 }
+

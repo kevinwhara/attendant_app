@@ -95,3 +95,4 @@ class AttendanceCalculator {
     return '${hours}h ${minutes}m';
   }
 }
+

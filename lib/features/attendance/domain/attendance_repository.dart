@@ -26,3 +26,4 @@ abstract class AttendanceRepository {
   });
   Future<AttendanceRecord?> getAttendanceById(int id);
 }
+

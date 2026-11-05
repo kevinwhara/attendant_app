@@ -22,3 +22,4 @@ class AppSettingsDao extends DatabaseAccessor<AppDatabase> with _$AppSettingsDao
     );
   }
 }
+

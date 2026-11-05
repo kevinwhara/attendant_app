@@ -99,3 +99,4 @@ class WebFaceDetector implements FaceDetectionService {
     return CameraPreview(_cameraController!);
   }
 }
+

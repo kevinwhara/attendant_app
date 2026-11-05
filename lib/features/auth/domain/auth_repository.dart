@@ -7,3 +7,4 @@ abstract class AuthRepository {
   Future<bool> changePassword(int employeeId, String oldPassword, String newPassword);
   Stream<Employee?> watchCurrentEmployee();
 }
+

@@ -35,3 +35,4 @@ abstract final class AppTypography {
     color: AppColors.muted,
   );
 }
+

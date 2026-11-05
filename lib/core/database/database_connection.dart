@@ -10,3 +10,4 @@ DatabaseConnection openAppDatabaseConnection({String name = 'attendant_app'}) {
     ),
   );
 }
+

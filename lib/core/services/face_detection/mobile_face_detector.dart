@@ -191,3 +191,4 @@ class MobileFaceDetector implements FaceDetectionService {
     return CameraPreview(_cameraController!);
   }
 }
+

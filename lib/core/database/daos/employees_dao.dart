@@ -63,3 +63,4 @@ class EmployeesDao extends DatabaseAccessor<AppDatabase> with _$EmployeesDaoMixi
     );
   }
 }
+

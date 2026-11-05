@@ -16,3 +16,4 @@ class WorkSchedules extends Table {
     {employeeId, dayOfWeek},
   ];
 }
+

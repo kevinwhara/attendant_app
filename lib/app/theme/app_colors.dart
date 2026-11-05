@@ -13,3 +13,4 @@ abstract final class AppColors {
   static const warning = Color(0xfff9a825);
   static const lateBadge = Color(0xffe65100);
 }
+

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_theme.dart';
 import 'auth_providers.dart';
 
@@ -28,7 +29,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _idController.text,
       _passwordController.text,
     );
-    if (!success && mounted) {
+    if (success && mounted) {
+      context.go('/home');
+    } else if (!success && mounted) {
       final error = ref.read(authProvider).errorMessage ?? 'Login failed';
       messenger.showSnackBar(
         SnackBar(
@@ -134,3 +137,4 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 }
+

@@ -43,3 +43,4 @@ class WorkSchedulesDao extends DatabaseAccessor<AppDatabase> with _$WorkSchedule
         .watch();
   }
 }
+

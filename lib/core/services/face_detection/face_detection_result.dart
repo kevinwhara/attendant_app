@@ -87,3 +87,4 @@ class FaceDetectionResult {
         errorMessage: message,
       );
 }
+

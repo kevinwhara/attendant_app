@@ -54,3 +54,4 @@ class FakeFaceDetectionService implements FaceDetectionService {
     );
   }
 }
+

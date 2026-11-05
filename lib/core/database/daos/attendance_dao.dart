@@ -97,3 +97,4 @@ class AttendanceDao extends DatabaseAccessor<AppDatabase> with _$AttendanceDaoMi
     return query.watch();
   }
 }
+
